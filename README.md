@@ -1,92 +1,92 @@
 # Gruhyashala — Library Management App
 
-> A library management application built with **Next.js, TypeScript, Tailwind CSS, Supabase (PostgreSQL + Auth), Google Books API, and Vercel deployment**.
+Repository foundation for a library management application built with **Next.js, TypeScript, Tailwind CSS, Supabase (PostgreSQL + Auth), Google Books API, and Vercel**.
 
-## Project Status
+## Status
 
-🚧 **Initial setup / sprint planning phase.** This repository currently contains only project foundation documentation. The Next.js application has not been scaffolded yet, dependencies are not installed, and the tech stack is **proposed but not yet approved** (see [docs/TECH_STACK.md](docs/TECH_STACK.md)). Product features are out of implementation scope until requirements and technical decisions are approved (see [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md)).
+🚧 **Foundation only.** The repository contains a minimal buildable app shell, development tooling, CI, and planning docs. **No product features are implemented.** Product work starts only after requirements, design, and data/API decisions are approved.
 
-## Project Overview
+- Approved stack and decisions: [docs/TECH_STACK.md](docs/TECH_STACK.md), [docs/DECISIONS.md](docs/DECISIONS.md)
+- Daily sprint plan: [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md)
+- Daily sprint playbook: [docs/DAILY_SPRINT_PLAYBOOK.md](docs/DAILY_SPRINT_PLAYBOOK.md)
 
-Gruhyashala aims to centralise library operations — book cataloguing, member management, and lending workflows — into a single web app. The intended approach imports book metadata from the Google Books API, persists library data in Supabase PostgreSQL, secures access with Supabase Auth, and deploys on Vercel.
+## Quick Start
 
-**Planned stack:**
-| Layer | Technology |
-|-------|------------|
-| Framework / Language | Next.js + TypeScript |
-| Styling | Tailwind CSS |
-| Database | Supabase PostgreSQL |
-| Authentication | Supabase Auth |
-| Book data | Google Books API |
-| Hosting | Vercel |
-
-See [docs/TECH_STACK.md](docs/TECH_STACK.md) for roles, rationale, alternatives, and open decisions for each technology.
-
-## Setup Instructions
-
-### Prerequisites (to be confirmed during setup tasks)
-- Node.js (version to be pinned in `.nvmrc` / `package.json` engines once scaffolded)
-- npm / pnpm / yarn (package manager to be selected)
-- Git
-
-### First-time setup
 ```bash
 git clone https://github.com/Ayush-Gawade/Gruhyashala.git
 cd Gruhyashala
-git checkout setup/project-foundation
+git switch main
+npm ci
+npm run dev
 ```
 
-> The Next.js app is not yet scaffolded. Do not run `npm install` until the foundation tasks in [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md) are approved and the app is created.
+Open <http://localhost:3000>. The placeholder page confirms the environment works.
 
-Once scaffolded, the standard workflow will be:
+### Requirements
+
+- Node.js **24** (see `.nvmrc`); minimum supported is Node 20.
+- npm 10+ (lockfile is committed).
+- Docker (only needed later for the local Supabase stack).
+
+### Environment Variables
+
+Copy the template and fill in values **locally**:
 
 ```bash
-# Install dependencies
-npm install        # or pnpm install / yarn install, per approved package manager
-
-# Copy env template (to be created, never commit real secrets)
 cp .env.example .env.local
-# Fill in Supabase + Google Books keys in .env.local
-
-# Start dev server
-npm run dev        # http://localhost:3000
 ```
 
-## Development Workflow
+`.env.local` is git-ignored. Never commit real keys, and never paste secrets into chat or issues. The variables and their owners are documented in [docs/TECH_STACK.md](docs/TECH_STACK.md). No environment variables are required to run the placeholder or the build.
 
-| Activity | Command / Action |
-|----------|------------------|
-| Dev server | `npm run dev` |
-| Lint | `npm run lint` |
-| Type-check | `npx tsc --noEmit` (or project script) |
-| Build | `npm run build` |
-| Start (prod) | `npm run start` |
-| Tests | TBD (framework to be selected in sprint planning) |
+## Scripts
 
-- Work on feature branches branched from `main`; do not commit directly to `main`.
-- Never commit `.env.local` or any secret — `.gitignore` already excludes env files.
-- Document decisions and changes in `docs/` and reference them in pull requests.
+| Command                           | Purpose                                             |
+| --------------------------------- | --------------------------------------------------- |
+| `npm run dev`                     | Start the dev server                                |
+| `npm run build`                   | Production build                                    |
+| `npm run start`                   | Run the production build                            |
+| `npm run lint`                    | ESLint                                              |
+| `npm run typecheck`               | TypeScript, no emit                                 |
+| `npm test`                        | Vitest unit tests                                   |
+| `npm run test:coverage`           | Tests with coverage thresholds                      |
+| `npm run format` / `format:check` | Prettier                                            |
+| `npm run verify`                  | Lint → type-check → test → build (same gates as CI) |
 
-## Repository Structure (planned)
+## Repository Structure
 
-```
+```text
 .
-├── README.md                  # This file
-├── .gitignore
+├── .github/workflows/ci.yml      # lint, type-check, test, build
 ├── docs/
-│   ├── TECH_STACK.md          # Proposed stack, rationale, alternatives, open decisions
-│   └── SPRINT_PLAN.md         # Sprint tasks, owners (roles), dependencies, acceptance criteria
-├── .env.example               # To be created (placeholder keys only)
-├── app/ or src/               # Next.js application (to be scaffolded)
-└── ...                        # Config files (to be scaffolded)
+│   ├── TECH_STACK.md             # approved stack, rationale, alternatives, owner actions
+│   ├── DECISIONS.md              # dated decision log
+│   ├── SPRINT_PLAN.md            # daily sprints, tasks, dependencies, DoD
+│   └── DAILY_SPRINT_PLAYBOOK.md  # daily rhythm, board, DoR/DoD, metrics
+├── src/app/                      # minimal Next.js App Router shell (placeholder)
+├── src/lib/                      # shared utilities + smoke test
+├── supabase/                     # (future) migrations and seeds — not created yet
+├── .env.example                  # variable names and safe placeholders
+├── CONTRIBUTING.md               # branch, commit, PR workflow
+└── package.json
 ```
 
-See [docs/SPRINT_PLAN.md](docs/SPRINT_PLAN.md) for the full task breakdown and [docs/TECH_STACK.md](docs/TECH_STACK.md) for technology decisions.
+## Workflow
+
+- `main` is the integration branch; work happens on `setup/*`, `docs/*`, `ci/*`, `feat/*`, or `fix/*` branches.
+- Every change goes through a pull request. CI must pass (lint, type-check, test, build).
+- Commits follow Conventional Commits.
+- See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Owner Actions (Not Automated)
+
+These require the repository owner because they involve credentials, paid resources, or legal choices:
+
+1. Create the Supabase project; put the URL, anon key, and service role key in `.env.local` (never in Git).
+2. Decide Google Books API key/quota usage.
+3. Create/link the Vercel project and configure environment variables.
+4. Approve the license and custom domain (if any).
+5. Enable branch protection on `main` if desired.
 
 ## License
 
-TBD
-
-## Contact
-
-Maintainer: repository owner via GitHub (@Ayush-Gawade on GitHub).
+Not set — owner decision (see [docs/DECISIONS.md](docs/DECISIONS.md), D-015).

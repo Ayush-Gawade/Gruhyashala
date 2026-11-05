@@ -1,123 +1,104 @@
-# Proposed Technology Stack
+# Technology Stack
 
-> ⚠️ **Status: PROPOSED — NOT APPROVED.** This document records the intended stack for the Library Management App (Gruhyashala). No dependencies have been installed and no application has been scaffolded yet. All choices below are subject to approval during sprint planning.
+> **Status: APPROVED for the foundation** (decision date: 2026-11-05). These choices are final enough to build the development environment on. Items marked **Owner decision** need the repository owner because they involve credentials, paid plans, or product scope. No product features are implemented yet.
 
-This document covers for each technology: **role**, **rationale**, **alternatives considered**, and **unresolved decisions**.
+Each section records the **role**, **rationale**, **alternatives**, and **decision status**.
 
 ---
 
 ## 1. Next.js + TypeScript
 
-- **Role:** Full-stack application framework and language. Next.js provides routing (App Router), server rendering, API routes / Server Actions, and the production build. TypeScript provides static typing for the entire codebase (frontend, backend, and data layers).
-- **Rationale:** Single React-based codebase for UI and server logic reduces context-switching; built-in routing, caching, and Vercel integration; TypeScript catches errors early and improves maintainability for a data-heavy app like a library system.
-- **Alternatives:**
-  - *Vite + React SPA + separate backend* — smaller frontend tooling, but requires a separate API server and auth/session handling.
-  - *Remix* — similar full-stack model, smaller ecosystem than Next.js.
-  - *Plain React + Express/Fastify* — maximum control, maximum boilerplate.
-  - *JavaScript (no TypeScript)* — faster to write, but weaker safety for data models.
-  - *tRPC / GraphQL (e.g. Apollo) on top of Next.js* — more structured APIs, but adds a layer; deferred until API needs are clarified.
-- **Unresolved decisions:**
-  - Next.js version (App Router vs Pages Router; target latest stable at scaffold time).
-  - Node.js version to pin (`.nvmrc` / `engines`).
-  - Package manager (npm vs pnpm vs yarn).
-  - `src/` directory vs root-level `app/` layout.
-  - Linting/formatting tooling (ESLint + Prettier configs, strictness level).
-  - Testing framework (e.g. Vitest / Jest + Playwright) — to be selected.
+- **Role:** Full-stack React framework (App Router) and the application language.
+- **Rationale:** One codebase for UI and server logic, first-class Vercel support, and strong typing for data-heavy library workflows.
+- **Alternatives:** Vite + React SPA with a separate API; Remix; plain React + Express/Fastify; JavaScript instead of TypeScript.
+- **Decision:**
+  - Next.js **16.x**, App Router, `src/` directory.
+  - TypeScript **5.x**, `strict: true`.
+  - Node.js **24** pinned in `.nvmrc`; `engines: node >=20`.
+  - npm as the package manager (lockfile committed).
+  - Import alias `@/*` → `src/*`.
+  - ESLint + Prettier for lint/format; Vitest + Testing Library for unit/component tests.
+  - Playwright/E2E deferred until there are user flows to test.
 
 ## 2. Tailwind CSS
 
-- **Role:** Utility-first CSS framework providing component styling, responsive layout, and the design system layer.
-- **Rationale:** Fast iteration without writing custom CSS per component; consistent spacing/typography scales; pairs natively with Next.js; easy to extend with a theme.
-- **Alternatives:**
-  - *CSS Modules / plain CSS* — no framework, but slower and less consistent.
-  - *shadcn/ui + Tailwind* — accessible pre-built components on top of Tailwind; a strong candidate but would be an added dependency to approve.
-  - *Material UI / Ant Design* — complete component libraries, but heavier and harder to customise to the intended design.
-  - *Bootstrap* — mature, but less flexible and a dated aesthetic.
-- **Unresolved decisions:**
-  - Tailwind version (v3 vs v4) and PostCSS/autoprefixer setup.
-  - Design tokens / theme (colours, fonts) — pending design task.
-  - Whether to adopt a component library (shadcn/ui, Radix) or build custom components.
-  - Dark mode strategy (class vs media query) — pending design requirements.
+- **Role:** Utility-first styling and design-token layer.
+- **Rationale:** Fast, consistent UI work; native fit with Next.js; easy to constrain with tokens.
+- **Alternatives:** CSS Modules/plain CSS; shadcn/ui + Radix; Material UI/Ant Design; Bootstrap.
+- **Decision:**
+  - Tailwind CSS **v4** with the `@tailwindcss/turbopack` integration.
+  - No component library yet — design tokens and components will follow the design task. shadcn/ui remains the preferred candidate if a library is adopted.
+  - Dark mode currently follows the OS preference; explicit toggle is a design decision.
 
 ## 3. Supabase PostgreSQL
 
-- **Role:** Primary relational datastore (books, members, loans, users, etc.) and, via Supabase, the managed Postgres instance, migrations, and Row Level Security (RLS) policy layer.
-- **Rationale:** PostgreSQL is a natural fit for relational library data (books ↔ members ↔ loans with joins and constraints). Supabase adds hosted Postgres, instant REST/GraphQL APIs, realtime, and storage without running a database ourselves.
-- **Alternatives:**
-  - *Supabase REST/Edge Functions vs direct Postgres client (e.g. Prisma)* — using Supabase's APIs alone vs an ORM for schema management.
-  - *Prisma + self-hosted/secret Postgres (e.g. Neon, PlanetScale-style, AWS RDS)* — more ORM control, but we manage connection strings, migrations, and backups.
-  - *MongoDB/Atlas (NoSQL)* — flexible schema, but library data is inherently relational; joins and integrity constraints are stronger in Postgres.
-  - *Firebase/Firestore* — realtime and simple auth, but weaker relational querying for loan/overdue logic.
-- **Unresolved decisions:**
-  - Data model (entities, relationships, indexes) — pending database design task.
-  - Supabase project provisioning (who creates it, region, tier).
-  - Migration tooling (Supabase CLI SQL migrations vs Prisma Migrate) and seed strategy.
-  - RLS policies per role (librarian vs member vs admin) — pending requirements.
-  - Backups, point-in-time recovery tier, and environment strategy (local Supabase vs cloud dev/prod).
+- **Role:** Primary relational database (books, members, loans, reservations, users).
+- **Rationale:** Library data is relational; Postgres gives joins/constraints, and Supabase provides a managed instance plus RLS.
+- **Alternatives:** Prisma + Neon/RDS; MongoDB/Atlas; Firebase/Firestore.
+- **Decision:**
+  - Supabase-hosted PostgreSQL.
+  - **No ORM** for now: Supabase client + SQL migrations managed by the Supabase CLI. Revisit only if query complexity demands it.
+  - Local development via Supabase CLI (requires Docker, already available on this machine).
+  - **Owner decision:** create the Supabase project (region, free tier), and provide credentials manually via `.env.local`.
 
 ## 4. Supabase Auth
 
-- **Role:** User authentication and authorisation — signup, login, session handling, JWT issuance, and integration with RLS policies so reads/writes are enforced per authenticated user.
-- **Rationale:** Tightly integrated with Supabase Postgres (RLS uses auth context directly), supports email/password, OAuth, and magic links out of the box, and avoids building auth from scratch.
-- **Alternatives:**
-  - *NextAuth.js (Auth.js)* — framework-native sessions, more control over providers, but separate from the database auth layer.
-  - *Clerk / Auth0* — polished hosted auth with user management UI, but an extra vendor and cost.
-  - *Custom JWT auth* — full control, but significant security responsibility.
-- **Unresolved decisions:**
-  - Auth providers (email/password only vs OAuth like Google) — pending requirements.
-  - User roles model (custom `profiles` table vs Supabase roles vs JWT claims).
-  - Email verification, password-reset, and session-expiry policies.
-  - Which auth approach for the frontend (Supabase JS client vs NextAuth) — must align with the database access layer.
+- **Role:** Sign-up, sign-in, sessions, JWT, and RLS identity.
+- **Rationale:** Native integration with Postgres RLS avoids building auth and a separate session layer.
+- **Alternatives:** Auth.js/NextAuth; Clerk/Auth0; custom JWT.
+- **Decision:**
+  - Supabase Auth with email/password for the foundation.
+  - Roles: `admin`, `librarian`, `member` — stored in a `profiles` table and enforced with RLS (final role matrix is a requirements task).
+  - OAuth providers and email templates deferred until requirements are approved.
+  - **Owner decision:** configure auth providers and email settings in the Supabase dashboard.
 
 ## 5. Google Books API
 
-- **Role:** External source of book metadata (title, author, publisher, ISBN, cover image, description) for cataloguing new books without manual entry.
-- **Rationale:** Free, well-documented API with ISBN search; avoids manual data entry and provides cover images. Google Books is the simplest source for initial catalogue enrichment.
-- **Alternatives:**
-  - *Open Library API* — open data, no key, but metadata quality varies.
-  - *OLDB / LibraryThing / Goodreads APIs* — Goodreads API is deprecated for public use; others have terms/rate limits to verify.
-  - *Manual entry / CSV import* — full control, but slow and error-prone for large catalogues.
-- **Unresolved decisions:**
-  - API key requirement and quota handling (daily limits, graceful degradation when exhausted).
-  - Caching strategy (cache responses in our DB vs live-fetch per search).
-  - Which fields to persist vs display-only, and deduplication by ISBN.
-  - Terms-of-service / attribution requirements.
-  - Fallback source if Google Books lacks a title.
+- **Role:** Import book metadata (title, authors, ISBN, cover, description) by search or ISBN.
+- **Rationale:** Free, documented, ISBN-aware, and avoids manual cataloguing.
+- **Alternatives:** Open Library API; manual/CSV import; commercial metadata providers.
+- **Decision:**
+  - Server-side calls only (never expose the key to the browser).
+  - API key optional for low volume; used when quota requires it.
+  - Persist a normalized subset of metadata; deduplicate by ISBN/Google Books ID.
+  - Cache imported metadata in Postgres; live search is for import only.
+  - Attribution/terms reviewed before feature implementation.
+  - **Owner decision:** provide `GOOGLE_BOOKS_API_KEY` if quota requires it.
 
 ## 6. Vercel Deployment
 
-- **Role:** Hosting and deployment platform for the Next.js application — git-connected deploys, preview URLs per pull request, environment variables, and edge caching.
-- **Rationale:** First-party support for Next.js (zero-config builds, SSR/ISR, edge functions), seamless GitHub integration, and instant preview environments per branch/PR.
-- **Alternatives:**
-  - *Self-hosted / VPS (Docker + Nginx)* — full control, but we manage servers, TLS, and scaling.
-  - *Netlify* — similar Next.js support, slightly less first-party integration.
-  - *AWS Amplify / EC2 / S3 + CloudFront* — powerful, but substantially more infrastructure to manage.
-  - *Render / Railway / Fly.io* — simpler container hosting, less Next.js-specific optimisation.
-- **Unresolved decisions:**
-  - Hobby vs Pro plan (team features, build minutes, analytics).
-  - Production domain (custom domain vs `*.vercel.app`) and preview URL policy.
-  - Environment variable management (Vercel dashboard vs `.env` templates; secrets rotation).
-  - CI/CD pipeline beyond Vercel's GitHub integration (preview approvals, branch protection).
-  - Regions and edge caching settings.
+- **Role:** Hosting, preview deployments per PR, production deployment.
+- **Rationale:** First-party Next.js support and low operational overhead.
+- **Alternatives:** Netlify; AWS Amplify/EC2; Render/Railway/Fly.io; self-hosted Docker.
+- **Decision:**
+  - Vercel with GitHub integration: preview per pull request, production from `main`.
+  - Start on the free/Hobby tier.
+  - Environment variables managed in the Vercel dashboard; never committed.
+  - **Owner decision:** create/link the Vercel project and set environment variables; custom domain choice.
+  - No production deployment is performed by the setup work.
 
 ---
 
-## Cross-Cutting Considerations
+## Cross-Cutting Decisions
 
-- **Environment strategy:** Local development with Supabase CLI (seeded data), a shared cloud dev project, and production — exact setup pending.
-- **Observability:** Error tracking (e.g. Sentry) and analytics — not yet decided.
-- **File storage:** Book covers (Supabase Storage vs external URLs from Google Books) — pending design.
-- **Costs:** Supabase + Vercel free tiers are sufficient for early sprints; limits to be monitored.
+| Area            | Decision                                                       |
+| --------------- | -------------------------------------------------------------- |
+| Package manager | npm (lockfile committed)                                       |
+| Node            | 24 (`.nvmrc`), engines `>=20`                                  |
+| Layout          | `src/app` App Router                                           |
+| Lint/format     | ESLint (Next config) + Prettier                                |
+| Tests           | Vitest + Testing Library; coverage via v8                      |
+| CI              | GitHub Actions: lint → typecheck → test → build                |
+| Git hooks       | None for now; CI is the gate (revisit if commit hygiene slips) |
+| Secrets         | `.env.local` only; `.env.example` documents variable names     |
+| Environments    | Local → Vercel preview → production; Supabase local/cloud      |
 
-## Open Questions Summary
+## Owner Actions (Blocked Until Provided)
 
-| # | Decision | Blocks |
-|---|----------|--------|
-| 1 | Next.js/Node versions, package manager, `src/` layout | Scaffolding |
-| 2 | Tailwind version, component library, design tokens | Frontend work |
-| 3 | Supabase provisioning, ORM/migrations, RLS roles | Database design |
-| 4 | Auth providers, role model | API/RLS design |
-| 5 | Google Books caching, quota, ToS, fallback | Catalogue import work |
-| 6 | Vercel plan, domain, env/CI strategy | Deployment |
+1. Create the Supabase project and share URL + anon key + service role key **via the environment file, not chat**.
+2. Decide Google Books API key usage/quota.
+3. Create/link the Vercel project and set environment variables.
+4. Approve custom domain and Vercel plan if the free tier is insufficient.
+5. Approve the license (repository currently has none).
 
-All open questions must be resolved and approved by the project owner before scaffolding the application or installing dependencies.
+All other foundation decisions are recorded in [docs/DECISIONS.md](DECISIONS.md).

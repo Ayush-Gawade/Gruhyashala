@@ -1,155 +1,149 @@
-# Sprint Plan
+# Daily Sprint Plan
 
-> ⚠️ **Scope guardrail:** This plan defines planning and setup work only. Product features are **out of implementation scope** until requirements and technical decisions are approved by the project owner. No application code will be written from this plan until its tasks are explicitly approved.
+> **Scope guardrail:** this plan covers **non-product setup only** — repository, tech stack, development environment, tooling, and sprint operations. Product features remain out of scope until requirements and technical decisions are approved. No feature branches are opened before that gate.
 
-**Planning horizon:** Sprint 0 — Foundation & Requirements (no feature code until the Definition of Done below is met).
+## Operating Model
 
-**Team structure:** Work is assigned to **roles, not individuals**. The project owner fills role assignments at kickoff.
+- **1 day = 1 sprint.** Each day has one theme, a small set of deliverables, and an end-of-day summary.
+- **Four lanes run in parallel** (see below). A person owns at most one active task per lane.
+- **WIP limit:** 1 task per lane per day; anything else waits in the ready queue.
+- **Daily rhythm:** 15-min planning → build → 15-min demo/verification → 10-min retro → written summary.
+- **Carryover:** unfinished work moves to the next day only with a written reason; no silent carryover.
+- **Blocked work is parked visibly**; the team pulls the next ready task from another lane.
 
----
+### Lanes
 
-## SPRINT 0 — FOUNDATION & REQUIREMENTS
+| Lane                          | Focus                        | Typical tasks                                                    |
+| ----------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| **R — Repository & Git**      | Branching, PRs, repo hygiene | `.gitignore`, branch protection, PR template, commit conventions |
+| **S — Stack & Docs**          | Decisions and documentation  | Tech stack, ADR log, README, onboarding                          |
+| **E — Environment & Tooling** | Local dev, scripts, CI       | Scaffold, lint/format, tests, CI, env template                   |
+| **P — Planning & Operations** | Sprint mechanics             | Board, labels, DoD, daily summary template, metrics              |
 
-### Track A: Initial Setup Tasks
+## Task Inventory
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| A1 | Approve proposed tech stack (or record amendments) | Project Owner / Tech Lead | — | `docs/TECH_STACK.md` decisions marked Approved in writing; open-questions table resolved or deferred with dates |
-| A2 | Create Next.js + TypeScript scaffold (App Router) | Front-End Developer / Tech Lead | A1 | App builds and runs locally; `npm run dev` serves a blank app; TS strict mode on; ESLint passes |
-| A3 | Set Node version + package manager policy | Tech Lead | A2 | `.nvmrc` + `engines` pinned; README setup instructions match reality |
-| A4 | Add Tailwind CSS + base theme | Front-End Developer | A2 | Tailwind compiled; a sample page renders styled output; design tokens documented |
-| A5 | Configure linting/formatting + git hooks (e.g. Husky) | Tech Lead | A2 | Lint/format run on commit; CI (or manual checklist) enforces them |
-| A6 | Provision Supabase project + create `.env.example` | Back-End Developer | A1 | Project created (dev tier); keys in Vercel/local env only; no secrets in repo |
-| A7 | Create Vercel project linked to GitHub | DevOps / Project Owner | A2 | Preview + production deploys from branches; env vars set; domain decision recorded |
-| A8 | Repo hygiene: license, branch protection, CONTRIBUTING | Project Owner | A1 | License present; `main` protected; contribution flow documented in README |
+Status as of the foundation pass: ✅ done, ▶ in progress, ⬜ backlog.
 
-### Track B: Requirements & Design Tasks
+| ID  | Task                                                                   | Lane | Depends on | Parallel with | Deliverable                     | Definition of Done                                        | Status |
+| --- | ---------------------------------------------------------------------- | ---- | ---------- | ------------- | ------------------------------- | --------------------------------------------------------- | ------ |
+| R1  | Initialise repository, `.gitignore`, branch `setup/project-foundation` | R    | —          | S1, P1        | Clean repo + ignore rules       | No secrets tracked; branch pushed                         | ✅     |
+| R2  | Contribution workflow (branch naming, commit format, PR checklist)     | R    | R1         | S2            | `CONTRIBUTING.md`, PR template  | A new contributor can follow it unaided                   | ✅     |
+| R3  | Open pull request for foundation work                                  | R    | R1, R2     | E3            | PR against `main`               | PR links files and test evidence                          | ✅     |
+| S1  | Finalise tech stack                                                    | S    | —          | R1, P1        | `docs/TECH_STACK.md`            | Every technology has role/rationale/alternatives/decision | ✅     |
+| S2  | Record decision log                                                    | S    | S1         | R2            | `docs/DECISIONS.md`             | Decisions dated, owners flagged                           | ✅     |
+| S3  | README and onboarding handoff                                          | S    | S1, E4     | P3            | Updated `README.md`             | Fresh-clone path documented and verified                  | ✅     |
+| E1  | Scaffold Next.js + TypeScript + Tailwind (placeholder only)            | E    | S1         | R2            | Buildable app shell             | `npm run dev` and `npm run build` pass                    | ✅     |
+| E2  | Lint, format, type-check, test tooling                                 | E    | E1         | P2            | Scripts + configs               | `npm run verify` passes                                   | ✅     |
+| E3  | CI pipeline                                                            | E    | E2, R1     | P2            | `.github/workflows/ci.yml`      | CI runs lint/typecheck/test/build on PRs                  | ✅     |
+| E4  | Environment variable contract                                          | E    | S1         | P2, R2        | `.env.example` + docs           | Every variable documented; no real values                 | ✅     |
+| P1  | Daily sprint plan                                                      | P    | —          | R1, S1        | `docs/SPRINT_PLAN.md`           | Dated days, deliverables, dependencies, DoD               | ✅     |
+| P2  | Daily sprint playbook                                                  | P    | P1         | E2            | `docs/DAILY_SPRINT_PLAYBOOK.md` | Ceremonies, board, DoR/DoD, metrics defined               | ✅     |
+| P3  | Sprint board structure and labels                                      | P    | P2         | S3            | Board conventions in playbook   | Columns/labels/WIP limits documented                      | ✅     |
+| V1  | Clean-clone verification                                               | E    | E1–E4      | P3            | Verification log in PR          | `npm ci && npm run verify` passes from a clean clone      | ▶      |
+| V2  | Merge readiness review                                                 | R    | V1         | —             | PR ready for merge              | CI green, docs complete, no blockers                      | ⬜     |
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| B1 | Define product requirements (user stories, must/should/won't) | Product Analyst | A8 | Requirements doc merged; every story has acceptance criteria; owner sign-off |
-| B2 | Define user roles & permissions matrix | Product Analyst / Security Engineer | B1 | Matrix approved; maps cleanly onto Supabase Auth + RLS |
-| B3 | UX research & user flows (catalogue, search, lending, returns) | UX Designer | B1 | Flows documented for each P0 story |
-| B4 | UI design: wireframes → high-fidelity mockups + component inventory | UI Designer | B3 | Mockups linked; states (empty/loading/error) covered per screen |
-| B5 | Design tokens & visual system update | UI Designer | B4 | Tokens merged into Tailwind theme (A4) |
-| B6 | Accessibility + responsive requirements | UX Designer / Front-End Developer | B3 | WCAG target level recorded; breakpoints agreed |
+## Daily Sprints
 
-### Track C: Database & API Design Tasks
+### Day 1 — Repository and Git baseline
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| C1 | Data model: entities, ERD, relationships (books, members, loans, etc.) | Back-End Developer / DBA | B1, B2 | ERD + field dictionary reviewed and approved |
-| C2 | Migration strategy + seed data plan | Back-End Developer | C1 | Migration workflow chosen (Supabase CLI vs Prisma); seed dataset defined |
-| C3 | Supabase RLS policies per role | Security Engineer | C1, B2 | Policy matrix documented; tests planned |
-| C4 | Google Books API integration design (search, ISBN lookup, caching, quota) | Back-End Developer | C1 | API contract + caching + fallback documented; ToS check recorded |
-| C5 | Auth design (providers, roles, session policy) | Security Engineer | B2 | Auth design doc approved; aligns with C3 |
-| C6 | API surface: which endpoints/queries, pagination, error shape | Tech Lead / Back-End Developer | C1, C4, C5 | OpenAPI or equivalent contract drafted; error codes agreed |
+- **Lane R:** R1, R3 · **Lane S:** S1 · **Lane P:** P1
+- **Deliverables:** repo initialised, `.gitignore`, foundation branch, PR open, stack doc, daily plan.
+- **DoD:** no secrets tracked; branch pushed; PR visible; docs reviewed by the owner when available.
+- **Status:** ✅ completed.
 
-### Track D: Frontend Workstream
+### Day 2 — Stack finalisation and decision log
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| D1 | App shell: navigation, layout, auth-aware guards | Front-End Developer | A2–A4, C5 | Shell renders all top-level routes; unauthenticated redirect works |
-| D2 | Component library setup (shadcn/ui or custom) + Storybook/docs | Front-End Developer | B4, B5 | Component inventory implemented or documented as custom |
-| D3 | Data-fetching patterns (Server Components vs client) | Front-End Developer / Tech Lead | D1, C6 | Pattern documented; sample list/detail pages fetch real (seeded) data |
+- **Lane S:** S1, S2 · **Lane R:** R2 · **Lane P:** P2
+- **Deliverables:** approved stack doc, decision log, contributing guide, playbook.
+- **DoD:** every technology has a decision; unresolved items are flagged as owner actions.
+- **Status:** ✅ completed.
 
-### Track E: Backend Workstream
+### Day 3 — Local development environment
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| E1 | Supabase clients + env wiring (browser/server/admin) | Back-End Developer | A6, C5 | All three clients created with documented usage rules |
-| E2 | Migrations + seeds implemented (local Supabase) | Back-End Developer | C2 | `supabase start && supabase db reset` runs cleanly with seed data |
-| E3 | RLS policies implemented + automated tests | Security Engineer | C3, E2 | Policy test suite passes per role (positive + negative cases) |
-| E4 | Google Books service layer (rate-limit, cache, dedupe) | Back-End Developer | C4, E1 | Service + tests pass; quota failure mode verified |
+- **Lane E:** E1, E4 · **Lane S:** S3 · **Lane P:** P3
+- **Deliverables:** minimal Next.js + TypeScript + Tailwind shell, `.nvmrc`, env template, README quick start.
+- **DoD:** fresh clone → `npm ci` → `npm run dev` renders the placeholder; `npm run build` succeeds without secrets.
+- **Status:** ✅ completed.
 
-### Track F: Delivery & Quality
+### Day 4 — Quality gates and CI
 
-| ID | Task | Owner Role | Depends On | Acceptance Criteria |
-|----|------|-----------|------------|---------------------|
-| F1 | CI pipeline: lint + type-check + tests on every PR | DevOps / Tech Lead | A5 | Required status checks green on a sample PR |
-| F2 | Test strategy (unit, integration, e2e) + coverage targets | QA Engineer | D1, E2 | Strategy doc approved; harness runs in CI |
-| F3 | Preview deployment per PR + production promotion process | DevOps | A7 | Working preview URL per PR; promotion checklist documented |
-| F4 | Observability: error tracking (e.g. Sentry) + uptime basics | DevOps | A7 | Errors surface in a dashboard; alert route documented |
+- **Lane E:** E2, E3 · **Lane P:** P3
+- **Deliverables:** ESLint, Prettier, Vitest smoke test, `verify` script, GitHub Actions workflow.
+- **DoD:** `npm run verify` passes locally; CI workflow is green on the PR.
+- **Status:** ✅ completed.
 
----
+### Day 5 — Environment and deployment preparation
 
-## Dependency Graph (Summary)
+- **Lane E:** E4 · **Lane S:** S3
+- **Deliverables:** documented variable matrix, local/preview/production contract, owner provisioning checklist.
+- **DoD:** all variables documented; no credentials in Git; owner knows exactly what to create.
+- **Status:** ✅ completed except owner-supplied credentials.
+
+### Day 6 — Daily sprint operating model
+
+- **Lane P:** P2, P3 · **Lane R:** R2
+- **Deliverables:** playbook, board conventions, DoR/DoD, summary template, role RACI.
+- **DoD:** each future day can start with 15-min planning and end with one written summary.
+- **Status:** ✅ completed.
+
+### Day 7 — Verification and handoff
+
+- **Lane E:** V1 · **Lane R:** V2 · **Lane S:** S3
+- **Deliverables:** clean-clone verification, PR updated with evidence, final summary.
+- **DoD:** `npm ci && npm run verify` passes from a fresh clone; PR has test evidence; blockers listed.
+- **Status:** ▶ in progress (this pass).
+
+## Remaining Non-Product Backlog
+
+| ID  | Task                                  | Lane | Depends on | Notes                                   |
+| --- | ------------------------------------- | ---- | ---------- | --------------------------------------- |
+| R4  | Enable branch protection on `main`    | R    | R3         | Requires repository admin; owner action |
+| R5  | Add license                           | R    | —          | Owner decision (legal)                  |
+| E5  | Add Playwright when UI work starts    | E    | E2         | Deferred until user flows exist         |
+| S4  | Design-token documentation            | S    | S1         | Needs design approval                   |
+| E6  | Supabase local stack smoke test       | E    | E4         | Requires Supabase CLI + Docker          |
+| P4  | Sprint board created in issue tracker | P    | P3         | Board conventions already documented    |
+| V2  | Merge foundation PR                   | R    | V1         | After CI green and owner review         |
+
+## Dependencies (compact)
 
 ```
-A1 ──┬─ A2 ── A3
-     │    ├─ A4 ── D1 ── D2/D3 ── F2
-     │    ├─ A5 ── F1
-     │    └─ A7 ── F3/F4
-     ├─ A6 ── E1 ── E4
-     └─ A8 ── B1 ──┬─ B2 ──┬─ C1 ──┬─ C2 ── E2 ── E3
-                   │       │       ├─ C3 ── E3
-                   │       │       ├─ C4 ── E4
-                   │       │       └─ C6 ── D3
-                   │       └─ C5 ── E1
-                   ├─ B3 ── B4 ── B5 / B6
-                   └─ (design handoff to D2)
+R1 ── R2 ── R3 ── V2
+ │      │
+S1 ── S2 ── S3
+ │
+E1 ── E2 ── E3
+ │      │
+E4 ─────┘
+P1 ── P2 ── P3
 ```
 
-**Critical path:** A1 → A2 → A6 → E1/E2 → Sprint 1 feature work.  
-**Others:** Everything in B depends on project-owner availability; design (B3–B6) and data/API design (C1–C6) can proceed in parallel but must converge before implementation tracks (D/E) begin feature work.
+- **Critical path:** S1 → E1 → E2 → E3 → V1 → V2.
+- **Runs in parallel from Day 1:** R, S, and P lanes.
+- **Owner-gated:** Supabase/Vercel provisioning, Google Books key, license, branch protection.
 
----
+## Roles (RACI, roles not people)
 
-## Roles (Not Named Individuals)
+| Activity                     | Responsible         | Accountable   | Consulted          | Informed |
+| ---------------------------- | ------------------- | ------------- | ------------------ | -------- |
+| Repo & Git workflow          | DevOps Engineer     | Tech Lead     | Project Owner      | Team     |
+| Stack & decisions            | Tech Lead           | Project Owner | Security Engineer  | Team     |
+| Dev environment & tooling    | Front-End Developer | Tech Lead     | Back-End Developer | Team     |
+| CI & quality gates           | DevOps Engineer     | Tech Lead     | QA Engineer        | Team     |
+| Sprint planning & board      | Tech Lead           | Project Owner | Team               | Team     |
+| Credentials / cloud accounts | Project Owner       | Project Owner | Tech Lead          | Team     |
 
-| Role | Responsibilities |
-|------|------------------|
-| Project Owner | Final approvals on stack, requirements, scope, and releases |
-| Tech Lead | Architecture decisions, scaffolding, code standards, CI |
-| Product Analyst | Requirements, user stories, acceptance criteria |
-| UX Designer | User flows, accessibility, responsive behaviour |
-| UI Designer | Visual design, mockups, design tokens |
-| Front-End Developer | Next.js app, Tailwind, components, data fetching |
-| Back-End Developer | Supabase, migrations, APIs, Google Books integration |
-| Security Engineer | Auth design, RLS policies, threat review |
-| QA Engineer | Test strategy, automated suites, release verification |
-| DevOps Engineer | Vercel, environments, CI/CD, observability |
+## How Setup Tasks Fit Daily Sprint Planning
 
----
+1. **Start of day (15 min):** triage blockers. Any setup/environment task that blocks someone is pulled first and gets a named owner for the day.
+2. **Capacity rule:** until product work is approved, setup work may use 100% of capacity. After approval, reserve **10–20%** of each day for setup/maintenance so tooling debt does not accumulate.
+3. **One deliverable per lane per day.** Setup tasks are sized to fit a day; larger work is split.
+4. **End of day:** demo the deliverable, update the board, post one summary (done / remaining / blockers / next day).
+5. **Escalation:** anything requiring credentials, paid resources, or legal choices is marked **Owner decision** and moved to the blocked column immediately — the team continues on other lanes.
 
-## Acceptance Criteria & Definition of Done
+## Out of Scope (Until Approved)
 
-### Definition of Done (every task)
-1. Code/docs merged into the repository via reviewed pull request.
-2. All acceptance criteria for the task are met and verified by the task owner.
-3. Linting, formatting, and type-checking pass (for code tasks).
-4. Tests pass — and any new logic includes tests per the test strategy (F2).
-5. Documentation is updated (README, `docs/`, or inline) to reflect the change.
-6. No secrets, credentials, or local env files are committed.
-7. The project owner (or their delegate) has signed off where the task is marked as requiring approval.
-
-### Sprint 0 Exit Criteria
-- [ ] Tech stack approved (A1) and scaffolding tasks (A2–A8) complete.
-- [ ] Requirements + roles/permissions (B1–B2) approved.
-- [ ] Design flows and mockups (B3–B6) approved.
-- [ ] Data model, RLS, auth, and API contracts (C1–C6) approved.
-- [ ] Supabase + Vercel environments live with migrations/seeds running (A6, A7, E2).
-- [ ] CI with lint/type-check/tests enforcing on every PR (F1–F3).
-- [ ] **Only then** is Sprint 1 (feature implementation) unblocked.
-
----
-
-## Risks & Mitigations
-
-| Risk | Mitigation |
-|------|------------|
-| Stack approval delayed, blocking scaffolding | Owners timebox A1 to the first planning session |
-| Google Books quota/ToS constraints | C4 validates quota + terms before E4 builds the service layer |
-| RLS policy complexity causing data leaks | C3 + E3: policy matrix first, then automated positive/negative tests |
-| Scope creep into features before requirements | Hard gate: no feature branches until Sprint 0 exit criteria pass |
-
----
-
-## Suggested Cadence
-
-- **Day 1–2:** A1 stack approval + A2–A5 scaffolding in parallel; B1 requirements kickoff.
-- **Day 3–5:** B2–B6 design; C1–C6 data/API design; A6–A8 environments + repo hygiene.
-- **Week 2:** E1–E4 implementation of the designed data/auth layers; F1–F4 CI/observability.
-- **End of Sprint 0:** Owner review of all exit criteria; go/no-go for Sprint 1.
-
-> Next step: the project owner reviews this plan, approves or amends the proposed stack, and confirms which roles will be filled.
+- Product requirements, user stories, and acceptance criteria for library features.
+- Database schema, RLS policies, and API contracts for product data.
+- UI design, components, and user flows.
+- Any product feature implementation or production deployment.
