@@ -39,8 +39,8 @@ Status as of the foundation pass: ✅ done, ▶ in progress, ⬜ backlog.
 | P1  | Daily sprint plan                                                      | P    | —          | R1, S1        | `docs/SPRINT_PLAN.md`           | Dated days, deliverables, dependencies, DoD               | ✅     |
 | P2  | Daily sprint playbook                                                  | P    | P1         | E2            | `docs/DAILY_SPRINT_PLAYBOOK.md` | Ceremonies, board, DoR/DoD, metrics defined               | ✅     |
 | P3  | Sprint board structure and labels                                      | P    | P2         | S3            | Board conventions in playbook   | Columns/labels/WIP limits documented                      | ✅     |
-| V1  | Clean-clone verification                                               | E    | E1–E4      | P3            | Verification log in PR          | `npm ci && npm run verify` passes from a clean clone      | ▶      |
-| V2  | Merge readiness review                                                 | R    | V1         | —             | PR ready for merge              | CI green, docs complete, no blockers                      | ⬜     |
+| V1  | Clean-clone verification                                               | E    | E1–E4      | P3            | Verification log in PR          | `npm ci && npm run verify` passes from a clean clone      | ✅     |
+| V2  | Merge readiness review                                                 | R    | V1         | —             | PR ready for merge              | CI green, docs complete, no blockers                      | ▶      |
 
 ## Daily Sprints
 
@@ -91,7 +91,7 @@ Status as of the foundation pass: ✅ done, ▶ in progress, ⬜ backlog.
 - **Lane E:** V1 · **Lane R:** V2 · **Lane S:** S3
 - **Deliverables:** clean-clone verification, PR updated with evidence, final summary.
 - **DoD:** `npm ci && npm run verify` passes from a fresh clone; PR has test evidence; blockers listed.
-- **Status:** ▶ in progress (this pass).
+- **Status:** ✅ completed. Merge left to the owner (PR #1, CI green).
 
 ## Remaining Non-Product Backlog
 
@@ -103,7 +103,7 @@ Status as of the foundation pass: ✅ done, ▶ in progress, ⬜ backlog.
 | S4  | Design-token documentation            | S    | S1         | Needs design approval                   |
 | E6  | Supabase local stack smoke test       | E    | E4         | Requires Supabase CLI + Docker          |
 | P4  | Sprint board created in issue tracker | P    | P3         | Board conventions already documented    |
-| V2  | Merge foundation PR                   | R    | V1         | After CI green and owner review         |
+| V2  | Merge foundation PR                   | R    | V1         | CI green; awaiting owner merge (PR #1)  |
 
 ## Dependencies (compact)
 
